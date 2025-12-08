@@ -1,0 +1,131 @@
+import { HardDrive, Plus, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { SectionHeader } from "./SectionHeader";
+import { Equipment } from "@/types/canvas";
+import { formatCurrency, calculateDepreciation } from "@/lib/calculations";
+
+interface EquipmentSectionProps {
+  items: Equipment[];
+  onAdd: () => void;
+  onUpdate: (id: string, updates: Partial<Equipment>) => void;
+  onRemove: (id: string) => void;
+}
+
+export function EquipmentSection({
+  items,
+  onAdd,
+  onUpdate,
+  onRemove,
+}: EquipmentSectionProps) {
+  const totalInvestment = items.reduce(
+    (sum, eq) => sum + eq.unitValue * eq.quantity,
+    0
+  );
+  const totalMonthlyDepreciation = items.reduce((sum, eq) => {
+    const dep = calculateDepreciation(eq.unitValue, eq.quantity, eq.lifespan);
+    return sum + dep.monthly;
+  }, 0);
+
+  return (
+    <div className="section-card animate-fade-in" style={{ animationDelay: "0.1s" }}>
+      <SectionHeader
+        icon={HardDrive}
+        title="Equipment & Materials"
+        subtitle="Assets with depreciation calculation"
+      />
+
+      <div className="space-y-3">
+        {items.map((item, index) => {
+          const dep = calculateDepreciation(item.unitValue, item.quantity, item.lifespan);
+          return (
+            <div
+              key={item.id}
+              className="grid gap-3 p-4 rounded-lg bg-muted/50 items-end grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <div className="col-span-2 sm:col-span-1">
+                <label className="text-xs text-muted-foreground mb-1 block">Name</label>
+                <Input
+                  placeholder="Equipment name"
+                  value={item.name}
+                  onChange={(e) => onUpdate(item.id, { name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Qty</label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    onUpdate(item.id, { quantity: parseInt(e.target.value) || 1 })
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Unit Value</label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={item.unitValue}
+                  onChange={(e) =>
+                    onUpdate(item.id, { unitValue: parseFloat(e.target.value) || 0 })
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Life (months)</label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={item.lifespan}
+                  onChange={(e) =>
+                    onUpdate(item.id, { lifespan: parseInt(e.target.value) || 60 })
+                  }
+                />
+              </div>
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <label className="text-xs text-muted-foreground mb-1 block">Monthly Dep.</label>
+                  <div className="h-10 flex items-center px-3 rounded-lg bg-background text-sm font-mono text-muted-foreground">
+                    {formatCurrency(dep.monthly)}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onRemove(item.id)}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+        <Button variant="outline" size="sm" onClick={onAdd}>
+          <Plus className="h-4 w-4 mr-1" />
+          Add Equipment
+        </Button>
+        <div className="flex gap-6 text-sm">
+          <div>
+            <span className="text-muted-foreground">Total Investment:</span>{" "}
+            <span className="font-mono font-semibold text-foreground">
+              {formatCurrency(totalInvestment)}
+            </span>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Monthly Depreciation:</span>{" "}
+            <span className="font-mono font-semibold text-primary">
+              {formatCurrency(totalMonthlyDepreciation)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
