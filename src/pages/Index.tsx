@@ -1,4 +1,8 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { useCanvasData } from "@/hooks/useCanvasData";
+import { useAuth } from "@/hooks/useAuth";
 import { Header } from "@/components/canvas/Header";
 import { ProjectInfoSection } from "@/components/canvas/ProjectInfoSection";
 import { EquipmentSection } from "@/components/canvas/EquipmentSection";
@@ -11,10 +15,15 @@ import { FinancialSummary } from "@/components/canvas/FinancialSummary";
 import { ProjectionsChart } from "@/components/canvas/ProjectionsChart";
 
 const Index = () => {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
+  
   const {
     data,
     metrics,
     projections,
+    loading: dataLoading,
+    saving,
     updateProjectInfo,
     updateGrowthRate,
     addEquipment,
@@ -39,11 +48,37 @@ const Index = () => {
     updateRawMaterial,
     removeRawMaterial,
     resetData,
-  } = useCanvasData();
+  } = useCanvasData(user?.id);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading || dataLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your canvas...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onReset={resetData} />
+      <Header 
+        onReset={resetData} 
+        onSignOut={signOut} 
+        userEmail={user.email}
+        saving={saving}
+      />
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
