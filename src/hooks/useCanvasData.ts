@@ -1,7 +1,9 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { CanvasData, FinancialMetrics, YearlyProjection } from "@/types/canvas";
 import { calculateFinancialMetrics, calculate3YearProjections } from "@/lib/calculations";
 import { v4 as generateId } from "@/lib/uuid";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const defaultCanvasData: CanvasData = {
   projectInfo: {
@@ -21,14 +23,117 @@ const defaultCanvasData: CanvasData = {
   growthRate: 15,
 };
 
-export function useCanvasData() {
+export function useCanvasData(userId: string | undefined) {
   const [data, setData] = useState<CanvasData>(defaultCanvasData);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
 
   const metrics = useMemo(() => calculateFinancialMetrics(data), [data]);
   const projections = useMemo(
     () => calculate3YearProjections(data, metrics),
     [data, metrics]
   );
+
+  // Load data from database
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    const loadData = async () => {
+      setLoading(true);
+      
+      const { data: canvasData, error } = await supabase
+        .from("canvas_data")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error loading canvas data:", error);
+        toast({
+          title: "Error loading data",
+          description: "Could not load your saved canvas data.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (canvasData) {
+        setData({
+          projectInfo: {
+            name: canvasData.project_name || "",
+            promoter: "",
+            location: "",
+            sector: "",
+            date: new Date().toISOString().split("T")[0],
+          },
+          equipment: (canvasData.equipment as any[]) || [],
+          personnel: (canvasData.personnel as any[]) || [],
+          activities: (canvasData.activities as any[]) || [],
+          products: (canvasData.products as any[]) || [],
+          customers: (canvasData.customers as any[]) || [],
+          otherCharges: (canvasData.other_charges as any[]) || [],
+          rawMaterials: [],
+          growthRate: Number(canvasData.growth_rate) || 15,
+        });
+      }
+
+      setLoading(false);
+    };
+
+    loadData();
+  }, [userId, toast]);
+
+  // Save data to database (debounced)
+  const saveData = useCallback(async (newData: CanvasData) => {
+    if (!userId) return;
+
+    setSaving(true);
+
+    const { error } = await supabase
+      .from("canvas_data")
+      .upsert(
+        {
+          user_id: userId,
+          project_name: newData.projectInfo.name || "Untitled Project",
+          project_description: newData.projectInfo.sector || null,
+          equipment: newData.equipment as any,
+          personnel: newData.personnel as any,
+          products: newData.products as any,
+          activities: newData.activities as any,
+          other_charges: newData.otherCharges as any,
+          customers: newData.customers as any,
+          growth_rate: newData.growthRate,
+        },
+        { onConflict: "user_id" }
+      );
+
+    if (error) {
+      console.error("Error saving canvas data:", error);
+      toast({
+        title: "Error saving",
+        description: "Could not save your canvas data.",
+        variant: "destructive",
+      });
+    }
+
+    setSaving(false);
+  }, [userId, toast]);
+
+  // Auto-save with debounce
+  useEffect(() => {
+    if (!userId || loading) return;
+
+    const timeoutId = setTimeout(() => {
+      saveData(data);
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [data, userId, loading, saveData]);
 
   const updateProjectInfo = useCallback(
     (info: Partial<CanvasData["projectInfo"]>) => {
@@ -262,6 +367,8 @@ export function useCanvasData() {
     data,
     metrics,
     projections,
+    loading,
+    saving,
     updateProjectInfo,
     updateGrowthRate,
     addEquipment,

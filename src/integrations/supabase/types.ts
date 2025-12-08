@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      canvas_data: {
+        Row: {
+          activities: Json
+          created_at: string
+          customers: Json
+          equipment: Json
+          growth_rate: number
+          id: string
+          other_charges: Json
+          personnel: Json
+          products: Json
+          project_description: string | null
+          project_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activities?: Json
+          created_at?: string
+          customers?: Json
+          equipment?: Json
+          growth_rate?: number
+          id?: string
+          other_charges?: Json
+          personnel?: Json
+          products?: Json
+          project_description?: string | null
+          project_name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activities?: Json
+          created_at?: string
+          customers?: Json
+          equipment?: Json
+          growth_rate?: number
+          id?: string
+          other_charges?: Json
+          personnel?: Json
+          products?: Json
+          project_description?: string | null
+          project_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
