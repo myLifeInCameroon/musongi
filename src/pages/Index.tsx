@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useCanvasData } from "@/hooks/useCanvasData";
@@ -13,6 +13,8 @@ import { OtherChargesSection } from "@/components/canvas/OtherChargesSection";
 import { CustomersSection } from "@/components/canvas/CustomersSection";
 import { FinancialSummary } from "@/components/canvas/FinancialSummary";
 import { ProjectionsChart } from "@/components/canvas/ProjectionsChart";
+import { exportCanvasToPDF } from "@/lib/pdfExport";
+import { toast } from "sonner";
 
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -67,6 +69,16 @@ const Index = () => {
     );
   }
 
+  const handleExportPDF = useCallback(() => {
+    try {
+      exportCanvasToPDF(data, metrics, projections);
+      toast.success("PDF exported successfully!");
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.error("Failed to export PDF. Please try again.");
+    }
+  }, [data, metrics, projections]);
+
   if (!user) {
     return null;
   }
@@ -75,7 +87,8 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header 
         onReset={resetData} 
-        onSignOut={signOut} 
+        onSignOut={signOut}
+        onExportPDF={handleExportPDF}
         userEmail={user.email}
         saving={saving}
       />

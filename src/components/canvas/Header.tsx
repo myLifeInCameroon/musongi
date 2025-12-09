@@ -1,4 +1,4 @@
-import { Calculator, RotateCcw, LogOut, Save, Loader2 } from "lucide-react";
+import { Calculator, RotateCcw, LogOut, FileDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,11 +12,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 interface HeaderProps {
   onReset: () => void;
   onSignOut?: () => void;
+  onExportPDF?: () => void;
   userEmail?: string;
   saving?: boolean;
 }
 
-export function Header({ onReset, onSignOut, userEmail, saving }: HeaderProps) {
+export function Header({ onReset, onSignOut, onExportPDF, userEmail, saving }: HeaderProps) {
   const initials = userEmail
     ? userEmail.slice(0, 2).toUpperCase()
     : "U";
@@ -44,6 +45,14 @@ export function Header({ onReset, onSignOut, userEmail, saving }: HeaderProps) {
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="hidden sm:inline">Saving...</span>
               </div>
+            )}
+
+            {/* Export PDF button */}
+            {onExportPDF && (
+              <Button variant="outline" size="sm" onClick={onExportPDF}>
+                <FileDown className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Export PDF</span>
+              </Button>
             )}
 
             {/* Reset button */}
