@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           activities: Json
           created_at: string
+          custom_tax_rate: number | null
           customers: Json
           equipment: Json
           growth_rate: number
@@ -27,12 +28,15 @@ export type Database = {
           products: Json
           project_description: string | null
           project_name: string
+          raw_materials: Json
+          region: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           activities?: Json
           created_at?: string
+          custom_tax_rate?: number | null
           customers?: Json
           equipment?: Json
           growth_rate?: number
@@ -42,12 +46,15 @@ export type Database = {
           products?: Json
           project_description?: string | null
           project_name?: string
+          raw_materials?: Json
+          region?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           activities?: Json
           created_at?: string
+          custom_tax_rate?: number | null
           customers?: Json
           equipment?: Json
           growth_rate?: number
@@ -57,6 +64,8 @@ export type Database = {
           products?: Json
           project_description?: string | null
           project_name?: string
+          raw_materials?: Json
+          region?: string | null
           updated_at?: string
           user_id?: string
         }

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useCanvasData } from "@/hooks/useCanvasData";
@@ -13,12 +13,15 @@ import { OtherChargesSection } from "@/components/canvas/OtherChargesSection";
 import { CustomersSection } from "@/components/canvas/CustomersSection";
 import { FinancialSummary } from "@/components/canvas/FinancialSummary";
 import { ProjectionsChart } from "@/components/canvas/ProjectionsChart";
+import { TaxCalculator } from "@/components/canvas/TaxCalculator";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 import { exportCanvasToPDF } from "@/lib/pdfExport";
 import { toast } from "sonner";
 
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isChatOpen, setIsChatOpen] = useState(false);
   
   const {
     data,
@@ -26,8 +29,17 @@ const Index = () => {
     projections,
     loading: dataLoading,
     saving,
+    // Project management
+    projects,
+    currentProjectId,
+    selectProject,
+    createProject,
+    deleteProject,
+    // Data updates
     updateProjectInfo,
     updateGrowthRate,
+    updateRegion,
+    updateCustomTaxRate,
     addEquipment,
     updateEquipment,
     removeEquipment,
@@ -58,6 +70,16 @@ const Index = () => {
     }
   }, [user, authLoading, navigate]);
 
+  const handleExportPDF = useCallback(() => {
+    try {
+      exportCanvasToPDF(data, metrics, projections);
+      toast.success("PDF exported successfully!");
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.error("Failed to export PDF. Please try again.");
+    }
+  }, [data, metrics, projections]);
+
   if (authLoading || dataLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -69,16 +91,6 @@ const Index = () => {
     );
   }
 
-  const handleExportPDF = useCallback(() => {
-    try {
-      exportCanvasToPDF(data, metrics, projections);
-      toast.success("PDF exported successfully!");
-    } catch (error) {
-      console.error("Error exporting PDF:", error);
-      toast.error("Failed to export PDF. Please try again.");
-    }
-  }, [data, metrics, projections]);
-
   if (!user) {
     return null;
   }
@@ -89,8 +101,15 @@ const Index = () => {
         onReset={resetData} 
         onSignOut={signOut}
         onExportPDF={handleExportPDF}
+        onOpenChat={() => setIsChatOpen(true)}
         userEmail={user.email}
         saving={saving}
+        projects={projects}
+        currentProjectId={currentProjectId}
+        onSelectProject={selectProject}
+        onCreateProject={createProject}
+        onDeleteProject={deleteProject}
+        projectsLoading={dataLoading}
       />
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -164,6 +183,14 @@ const Index = () => {
             growthRate={data.growthRate}
             onGrowthRateChange={updateGrowthRate}
           />
+
+          <TaxCalculator
+            projections={projections}
+            region={data.region || "custom"}
+            customTaxRate={data.customTaxRate || 30}
+            onRegionChange={updateRegion}
+            onCustomTaxRateChange={updateCustomTaxRate}
+          />
         </div>
 
         {/* Footer */}
@@ -173,6 +200,9 @@ const Index = () => {
           </p>
         </footer>
       </main>
+
+      {/* AI Chat Panel */}
+      <ChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 };

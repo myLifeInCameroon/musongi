@@ -3,7 +3,8 @@ import { CanvasData, FinancialMetrics, YearlyProjection } from "@/types/canvas";
 import { calculateFinancialMetrics, calculate3YearProjections } from "@/lib/calculations";
 import { v4 as generateId } from "@/lib/uuid";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { ProjectSummary } from "@/components/projects/ProjectSelector";
 
 const defaultCanvasData: CanvasData = {
   projectInfo: {
@@ -21,13 +22,16 @@ const defaultCanvasData: CanvasData = {
   otherCharges: [],
   rawMaterials: [],
   growthRate: 15,
+  region: "custom",
+  customTaxRate: 30,
 };
 
 export function useCanvasData(userId: string | undefined) {
   const [data, setData] = useState<CanvasData>(defaultCanvasData);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const { toast } = useToast();
 
   const metrics = useMemo(() => calculateFinancialMetrics(data), [data]);
   const projections = useMemo(
@@ -35,105 +39,200 @@ export function useCanvasData(userId: string | undefined) {
     [data, metrics]
   );
 
-  // Load data from database
+  // Load all projects for user
+  const loadProjects = useCallback(async () => {
+    if (!userId) return;
+
+    const { data: projectsData, error } = await supabase
+      .from("canvas_data")
+      .select("id, project_name, updated_at")
+      .eq("user_id", userId)
+      .order("updated_at", { ascending: false });
+
+    if (error) {
+      console.error("Error loading projects:", error);
+      return;
+    }
+
+    setProjects(projectsData || []);
+    return projectsData;
+  }, [userId]);
+
+  // Load specific project
+  const loadProject = useCallback(async (projectId: string) => {
+    if (!userId) return;
+
+    setLoading(true);
+
+    const { data: canvasData, error } = await supabase
+      .from("canvas_data")
+      .select("*")
+      .eq("id", projectId)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error loading project:", error);
+      toast.error("Could not load project data.");
+      setLoading(false);
+      return;
+    }
+
+    if (canvasData) {
+      setCurrentProjectId(canvasData.id);
+      setData({
+        projectInfo: {
+          name: canvasData.project_name || "",
+          promoter: "",
+          location: "",
+          sector: canvasData.project_description || "",
+          date: new Date().toISOString().split("T")[0],
+        },
+        equipment: (canvasData.equipment as any[]) || [],
+        personnel: (canvasData.personnel as any[]) || [],
+        activities: (canvasData.activities as any[]) || [],
+        products: (canvasData.products as any[]) || [],
+        customers: (canvasData.customers as any[]) || [],
+        otherCharges: (canvasData.other_charges as any[]) || [],
+        rawMaterials: (canvasData.raw_materials as any[]) || [],
+        growthRate: Number(canvasData.growth_rate) || 15,
+        region: (canvasData.region as string) || "custom",
+        customTaxRate: Number(canvasData.custom_tax_rate) || 30,
+      });
+    }
+
+    setLoading(false);
+  }, [userId]);
+
+  // Initial load
   useEffect(() => {
     if (!userId) {
       setLoading(false);
       return;
     }
 
-    const loadData = async () => {
+    const initLoad = async () => {
       setLoading(true);
-      
-      const { data: canvasData, error } = await supabase
-        .from("canvas_data")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
+      const projectsList = await loadProjects();
 
-      if (error) {
-        console.error("Error loading canvas data:", error);
-        toast({
-          title: "Error loading data",
-          description: "Could not load your saved canvas data.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      if (canvasData) {
-        setData({
-          projectInfo: {
-            name: canvasData.project_name || "",
-            promoter: "",
-            location: "",
-            sector: "",
-            date: new Date().toISOString().split("T")[0],
-          },
-          equipment: (canvasData.equipment as any[]) || [],
-          personnel: (canvasData.personnel as any[]) || [],
-          activities: (canvasData.activities as any[]) || [],
-          products: (canvasData.products as any[]) || [],
-          customers: (canvasData.customers as any[]) || [],
-          otherCharges: (canvasData.other_charges as any[]) || [],
-          rawMaterials: [],
-          growthRate: Number(canvasData.growth_rate) || 15,
-        });
+      if (projectsList && projectsList.length > 0) {
+        // Load the most recent project
+        await loadProject(projectsList[0].id);
+      } else {
+        // Create first project for new user
+        await createProject("My First Project");
       }
 
       setLoading(false);
     };
 
-    loadData();
-  }, [userId, toast]);
+    initLoad();
+  }, [userId, loadProjects, loadProject]);
 
   // Save data to database (debounced)
-  const saveData = useCallback(async (newData: CanvasData) => {
-    if (!userId) return;
+  const saveData = useCallback(async (newData: CanvasData, projectId: string | null) => {
+    if (!userId || !projectId) return;
 
     setSaving(true);
 
     const { error } = await supabase
       .from("canvas_data")
-      .upsert(
-        {
-          user_id: userId,
-          project_name: newData.projectInfo.name || "Untitled Project",
-          project_description: newData.projectInfo.sector || null,
-          equipment: newData.equipment as any,
-          personnel: newData.personnel as any,
-          products: newData.products as any,
-          activities: newData.activities as any,
-          other_charges: newData.otherCharges as any,
-          customers: newData.customers as any,
-          growth_rate: newData.growthRate,
-        },
-        { onConflict: "user_id" }
-      );
+      .update({
+        project_name: newData.projectInfo.name || "Untitled Project",
+        project_description: newData.projectInfo.sector || null,
+        equipment: newData.equipment as any,
+        personnel: newData.personnel as any,
+        products: newData.products as any,
+        activities: newData.activities as any,
+        other_charges: newData.otherCharges as any,
+        customers: newData.customers as any,
+        raw_materials: newData.rawMaterials as any,
+        growth_rate: newData.growthRate,
+        region: newData.region,
+        custom_tax_rate: newData.customTaxRate,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", projectId)
+      .eq("user_id", userId);
 
     if (error) {
       console.error("Error saving canvas data:", error);
-      toast({
-        title: "Error saving",
-        description: "Could not save your canvas data.",
-        variant: "destructive",
-      });
+      toast.error("Could not save your canvas data.");
     }
 
     setSaving(false);
-  }, [userId, toast]);
+  }, [userId]);
 
   // Auto-save with debounce
   useEffect(() => {
-    if (!userId || loading) return;
+    if (!userId || loading || !currentProjectId) return;
 
     const timeoutId = setTimeout(() => {
-      saveData(data);
+      saveData(data, currentProjectId);
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [data, userId, loading, saveData]);
+  }, [data, userId, loading, currentProjectId, saveData]);
+
+  // Create new project
+  const createProject = useCallback(async (name: string) => {
+    if (!userId) return;
+
+    const { data: newProject, error } = await supabase
+      .from("canvas_data")
+      .insert({
+        user_id: userId,
+        project_name: name,
+      })
+      .select("id, project_name, updated_at")
+      .single();
+
+    if (error) {
+      console.error("Error creating project:", error);
+      toast.error("Could not create project.");
+      return;
+    }
+
+    setProjects(prev => [newProject, ...prev]);
+    await loadProject(newProject.id);
+    toast.success(`Project "${name}" created!`);
+  }, [userId, loadProject]);
+
+  // Delete project
+  const deleteProject = useCallback(async (projectId: string) => {
+    if (!userId) return;
+
+    const { error } = await supabase
+      .from("canvas_data")
+      .delete()
+      .eq("id", projectId)
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Error deleting project:", error);
+      toast.error("Could not delete project.");
+      return;
+    }
+
+    const updatedProjects = projects.filter(p => p.id !== projectId);
+    setProjects(updatedProjects);
+
+    // If we deleted the current project, switch to another
+    if (currentProjectId === projectId && updatedProjects.length > 0) {
+      await loadProject(updatedProjects[0].id);
+    } else if (updatedProjects.length === 0) {
+      // Create a new project if none left
+      await createProject("My Project");
+    }
+
+    toast.success("Project deleted");
+  }, [userId, projects, currentProjectId, loadProject, createProject]);
+
+  // Switch project
+  const selectProject = useCallback(async (projectId: string) => {
+    if (projectId === currentProjectId) return;
+    await loadProject(projectId);
+  }, [currentProjectId, loadProject]);
 
   const updateProjectInfo = useCallback(
     (info: Partial<CanvasData["projectInfo"]>) => {
@@ -147,6 +246,14 @@ export function useCanvasData(userId: string | undefined) {
 
   const updateGrowthRate = useCallback((rate: number) => {
     setData((prev) => ({ ...prev, growthRate: rate }));
+  }, []);
+
+  const updateRegion = useCallback((region: string) => {
+    setData((prev) => ({ ...prev, region }));
+  }, []);
+
+  const updateCustomTaxRate = useCallback((rate: number) => {
+    setData((prev) => ({ ...prev, customTaxRate: rate }));
   }, []);
 
   // Equipment CRUD
@@ -360,7 +467,10 @@ export function useCanvasData(userId: string | undefined) {
   }, []);
 
   const resetData = useCallback(() => {
-    setData(defaultCanvasData);
+    setData(prev => ({
+      ...defaultCanvasData,
+      projectInfo: { ...defaultCanvasData.projectInfo, name: prev.projectInfo.name },
+    }));
   }, []);
 
   return {
@@ -369,8 +479,17 @@ export function useCanvasData(userId: string | undefined) {
     projections,
     loading,
     saving,
+    // Project management
+    projects,
+    currentProjectId,
+    selectProject,
+    createProject,
+    deleteProject,
+    // Data updates
     updateProjectInfo,
     updateGrowthRate,
+    updateRegion,
+    updateCustomTaxRate,
     addEquipment,
     updateEquipment,
     removeEquipment,
