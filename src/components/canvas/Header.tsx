@@ -1,4 +1,4 @@
-import { Calculator, RotateCcw, LogOut, FileDown, Loader2 } from "lucide-react";
+import { Calculator, RotateCcw, LogOut, FileDown, Loader2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,16 +8,37 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ProjectSelector, ProjectSummary } from "@/components/projects/ProjectSelector";
 
 interface HeaderProps {
   onReset: () => void;
   onSignOut?: () => void;
   onExportPDF?: () => void;
+  onOpenChat?: () => void;
   userEmail?: string;
   saving?: boolean;
+  projects: ProjectSummary[];
+  currentProjectId: string | null;
+  onSelectProject: (id: string) => void;
+  onCreateProject: (name: string) => Promise<void>;
+  onDeleteProject: (id: string) => Promise<void>;
+  projectsLoading?: boolean;
 }
 
-export function Header({ onReset, onSignOut, onExportPDF, userEmail, saving }: HeaderProps) {
+export function Header({
+  onReset,
+  onSignOut,
+  onExportPDF,
+  onOpenChat,
+  userEmail,
+  saving,
+  projects,
+  currentProjectId,
+  onSelectProject,
+  onCreateProject,
+  onDeleteProject,
+  projectsLoading,
+}: HeaderProps) {
   const initials = userEmail
     ? userEmail.slice(0, 2).toUpperCase()
     : "U";
@@ -30,15 +51,27 @@ export function Header({ onReset, onSignOut, onExportPDF, userEmail, saving }: H
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-glow">
               <Calculator className="h-5 w-5 text-primary-foreground" />
             </div>
-            <div>
+            <div className="hidden sm:block">
               <h1 className="text-lg font-bold gradient-text">Profitability Canvas</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">
+              <p className="text-xs text-muted-foreground">
                 Business Financial Planner
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Project Selector - Center */}
+          <div className="flex-1 flex justify-center px-4">
+            <ProjectSelector
+              projects={projects}
+              currentProjectId={currentProjectId}
+              onSelectProject={onSelectProject}
+              onCreateProject={onCreateProject}
+              onDeleteProject={onDeleteProject}
+              isLoading={projectsLoading}
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
             {/* Saving indicator */}
             {saving && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -47,17 +80,25 @@ export function Header({ onReset, onSignOut, onExportPDF, userEmail, saving }: H
               </div>
             )}
 
+            {/* AI Chat button */}
+            {onOpenChat && (
+              <Button variant="outline" size="sm" onClick={onOpenChat} className="gap-2">
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">AI Advisor</span>
+              </Button>
+            )}
+
             {/* Export PDF button */}
             {onExportPDF && (
               <Button variant="outline" size="sm" onClick={onExportPDF}>
-                <FileDown className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Export PDF</span>
+                <FileDown className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Export</span>
               </Button>
             )}
 
             {/* Reset button */}
             <Button variant="outline" size="sm" onClick={onReset}>
-              <RotateCcw className="h-4 w-4 mr-2" />
+              <RotateCcw className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Reset</span>
             </Button>
 
@@ -71,7 +112,7 @@ export function Header({ onReset, onSignOut, onExportPDF, userEmail, saving }: H
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:inline text-sm truncate max-w-[150px]">
+                    <span className="hidden md:inline text-sm truncate max-w-[100px]">
                       {userEmail}
                     </span>
                   </Button>

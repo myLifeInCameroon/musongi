@@ -63,6 +63,8 @@ export interface CanvasData {
   otherCharges: OtherCharge[];
   rawMaterials: RawMaterial[];
   growthRate: number; // annual growth rate percentage
+  region: string; // tax region id
+  customTaxRate: number; // custom tax rate if region is "custom"
 }
 
 export interface FinancialMetrics {
