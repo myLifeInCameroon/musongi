@@ -10,6 +10,8 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProjectSelector, ProjectSummary } from "@/components/projects/ProjectSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import musongiLogo from "@/assets/musongi-logo.svg";
 
 interface HeaderProps {
@@ -41,6 +43,7 @@ export function Header({
   onDeleteProject,
   projectsLoading,
 }: HeaderProps) {
+  const { t } = useLanguage();
   const initials = userEmail
     ? userEmail.slice(0, 2).toUpperCase()
     : "U";
@@ -85,6 +88,9 @@ export function Header({
               </div>
             )}
 
+            {/* Language Selector */}
+            <LanguageSelector />
+
             {/* Theme Toggle */}
             <ThemeToggle />
 
@@ -100,14 +106,14 @@ export function Header({
             {onExportPDF && (
               <Button variant="outline" size="sm" onClick={onExportPDF}>
                 <FileDown className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Export</span>
+                <span className="hidden sm:inline">{t("common.export")}</span>
               </Button>
             )}
 
             {/* Reset button */}
             <Button variant="outline" size="sm" onClick={onReset}>
               <RotateCcw className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">{t("common.reset")}</span>
             </Button>
 
             {/* User menu */}
@@ -133,7 +139,7 @@ export function Header({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onSignOut} className="text-destructive focus:text-destructive">
                     <LogOut className="h-4 w-4 mr-2" />
-                    Sign out
+                    {t("common.signout")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

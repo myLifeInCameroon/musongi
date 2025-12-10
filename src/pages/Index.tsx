@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useCanvasData } from "@/hooks/useCanvasData";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/canvas/Header";
 import { ProjectInfoSection } from "@/components/canvas/ProjectInfoSection";
 import { EquipmentSection } from "@/components/canvas/EquipmentSection";
@@ -22,6 +23,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { t } = useLanguage();
   
   const {
     data,
@@ -85,7 +87,7 @@ const Index = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your canvas...</p>
+          <p className="text-muted-foreground">{t("main.loading")}</p>
         </div>
       </div>
     );
@@ -116,11 +118,10 @@ const Index = () => {
         {/* Hero Section */}
         <div className="text-center mb-10 animate-fade-in">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
-            Business Profitability Canvas
+            {t("main.title")}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Determine your business viability with comprehensive financial analysis 
-            and 3-year projections
+            {t("main.subtitle")}
           </p>
         </div>
 
@@ -196,10 +197,10 @@ const Index = () => {
         {/* Footer */}
         <footer className="mt-12 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            Business Profitability Canvas® — Inspired by ECOLIA Labs methodology
+            {t("main.footer.methodology")}
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            Built by{" "}
+            {t("main.footer.builtby")}{" "}
             <a
               href="https://www.linkedin.com/in/karol-charles-konarski-a4252a199/"
               target="_blank"
