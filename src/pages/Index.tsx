@@ -196,7 +196,18 @@ const Index = () => {
         {/* Footer */}
         <footer className="mt-12 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            Business Profitability Canvas® — Powered by ECOLIA Labs methodology
+            Business Profitability Canvas® — Inspired by ECOLIA Labs methodology
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Built by{" "}
+            <a
+              href="https://www.linkedin.com/in/karol-charles-konarski-a4252a199/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Karol Charles Konarski
+            </a>
           </p>
         </footer>
       </main>

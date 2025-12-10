@@ -56,8 +56,9 @@ export function Header({
               alt="Musongi" 
               className="h-10 w-auto"
             />
-            <div className="hidden sm:block">
-              <p className="text-xs text-muted-foreground">
+            <div className="flex flex-col leading-tight">
+              <span className="font-bold">Musongi</span>
+              <p className="text-xs text-muted-foreground hidden sm:block">
                 Financial Consultation Services
               </p>
             </div>
