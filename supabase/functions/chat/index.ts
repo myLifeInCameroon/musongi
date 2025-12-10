@@ -4,6 +4,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const allowedOrigins = [
   "http://localhost:8080", // adjust port if needed
   "https://musongi.netlify.app", // replace with your actual Netlify URL
+  "https://www.musongi.com"
 ];
 
 const systemPrompt = `You are a helpful business advisor AI assistant for a Business Profitability Canvas application. Your role is to help entrepreneurs and startup founders:
