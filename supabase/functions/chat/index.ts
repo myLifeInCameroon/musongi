@@ -1,9 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// List of allowed frontend origins
+const allowedOrigins = [
+  "http://localhost:8080", // adjust port if needed
+  "https://musongi.netlify.app", // replace with your actual Netlify URL
+];
 
 const systemPrompt = `You are a helpful business advisor AI assistant for a Business Profitability Canvas application. Your role is to help entrepreneurs and startup founders:
 
@@ -38,7 +39,20 @@ const systemPrompt = `You are a helpful business advisor AI assistant for a Busi
 Be concise, practical, and encouraging. Use examples when helpful. If asked about specific tax rates, remind users to verify with local authorities.`;
 
 serve(async (req) => {
+  const origin = req.headers.get("origin") || "";
+
+  // Set CORS headers conditionally
+  const corsHeaders: Record<string, string> = {
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+
+  if (allowedOrigins.includes(origin)) {
+    corsHeaders["Access-Control-Allow-Origin"] = origin;
+  }
+
+  // Handle preflight request
   if (req.method === "OPTIONS") {
+    corsHeaders["Access-Control-Allow-Methods"] = "POST, OPTIONS";
     return new Response(null, { headers: corsHeaders });
   }
 
