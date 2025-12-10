@@ -6,14 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { z } from "zod";
 import heroImage from "@/assets/hero-bg.jpg";
 import musongiLogo from "@/assets/musongi-logo.svg";
-
-const authSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -23,6 +20,12 @@ const Auth = () => {
   const [submitting, setSubmitting] = useState(false);
   const { user, loading, signUp, signIn } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const authSchema = z.object({
+    email: z.string().email(t("auth.validation.email")),
+    password: z.string().min(6, t("auth.validation.password")),
+  });
 
   useEffect(() => {
     if (user) {
@@ -93,10 +96,10 @@ const Auth = () => {
           {/* Main Hero Text */}
           <div className="space-y-6 max-w-xl">
             <h1 className="text-4xl xl:text-5xl font-bold leading-tight">
-              Empowering African Entrepreneurs
+              {t("hero.title")}
             </h1>
             <p className="text-lg xl:text-xl text-primary-foreground/90 leading-relaxed">
-              Musongi provides expert financial consultation services to help you build profitable, sustainable businesses across Africa.
+              {t("hero.subtitle")}
             </p>
 
             {/* Features */}
@@ -105,19 +108,19 @@ const Auth = () => {
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 backdrop-blur-sm">
                   <TrendingUp className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-sm font-medium">Financial Projections & Analysis</span>
+                <span className="text-sm font-medium">{t("hero.feature1")}</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 backdrop-blur-sm">
                   <Shield className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-sm font-medium">Tax Planning for CEMAC & UEMOA</span>
+                <span className="text-sm font-medium">{t("hero.feature2")}</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 backdrop-blur-sm">
                   <Users className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-sm font-medium">AI-Powered Business Advisor</span>
+                <span className="text-sm font-medium">{t("hero.feature3")}</span>
               </div>
             </div>
           </div>
@@ -125,14 +128,19 @@ const Auth = () => {
           {/* Bottom Quote */}
           <div className="space-y-2">
             <p className="text-sm text-primary-foreground/70 italic">
-              "Your partner in African business success"
+              "{t("hero.quote")}"
             </p>
           </div>
         </div>
       </div>
 
       {/* Auth Form - Right Side */}
-      <div className="w-full lg:w-1/2 xl:w-2/5 flex flex-col items-center justify-center p-6 sm:p-12 bg-background">
+      <div className="w-full lg:w-1/2 xl:w-2/5 flex flex-col items-center justify-center p-6 sm:p-12 bg-background relative">
+        {/* Language Selector - Top Right */}
+        <div className="absolute top-4 right-4">
+          <LanguageSelector />
+        </div>
+
         {/* Mobile Logo */}
         <div className="flex lg:hidden items-center gap-3 mb-8 animate-fade-in">
           <img src={musongiLogo} alt="Musongi" className="h-12 w-auto" />
@@ -142,18 +150,16 @@ const Auth = () => {
         <Card className="w-full max-w-md glass-card animate-scale-in">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-2xl font-bold">
-              {isSignUp ? "Create your account" : "Welcome back"}
+              {isSignUp ? t("auth.title.signup") : t("auth.title.signin")}
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              {isSignUp
-                ? "Start your business planning journey with Musongi"
-                : "Sign in to continue to your dashboard"}
+              {isSignUp ? t("auth.subtitle.signup") : t("auth.subtitle.signin")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">Email</Label>
+                <Label htmlFor="email" className="text-foreground">{t("auth.email")}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -171,7 +177,7 @@ const Auth = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">Password</Label>
+                <Label htmlFor="password" className="text-foreground">{t("auth.password")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -198,7 +204,7 @@ const Auth = () => {
                 ) : (
                   <ArrowRight className="h-4 w-4 mr-2" />
                 )}
-                {isSignUp ? "Create account" : "Sign in"}
+                {isSignUp ? t("auth.button.signup") : t("auth.button.signin")}
               </Button>
             </form>
 
@@ -211,9 +217,7 @@ const Auth = () => {
                 }}
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
-                {isSignUp
-                  ? "Already have an account? Sign in"
-                  : "Don't have an account? Sign up"}
+                {isSignUp ? t("auth.switch.signin") : t("auth.switch.signup")}
               </button>
             </div>
           </CardContent>
@@ -221,7 +225,7 @@ const Auth = () => {
 
         {/* Footer */}
         <p className="mt-8 text-sm text-muted-foreground animate-fade-in text-center">
-          Your data is securely stored and encrypted
+          {t("auth.footer")}
         </p>
       </div>
     </div>
