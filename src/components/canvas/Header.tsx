@@ -1,4 +1,4 @@
-import { Calculator, RotateCcw, LogOut, FileDown, Loader2, MessageSquare } from "lucide-react";
+import { RotateCcw, LogOut, FileDown, Loader2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProjectSelector, ProjectSummary } from "@/components/projects/ProjectSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import musongiLogo from "@/assets/musongi-logo.svg";
 
 interface HeaderProps {
   onReset: () => void;
@@ -47,14 +49,16 @@ export function Header({
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-glow">
-              <Calculator className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img 
+              src={musongiLogo} 
+              alt="Musongi" 
+              className="h-10 w-auto"
+            />
             <div className="hidden sm:block">
-              <h1 className="text-lg font-bold gradient-text">Profitability Canvas</h1>
               <p className="text-xs text-muted-foreground">
-                Business Financial Planner
+                Financial Consultation Services
               </p>
             </div>
           </div>
@@ -79,6 +83,9 @@ export function Header({
                 <span className="hidden sm:inline">Saving...</span>
               </div>
             )}
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* AI Chat button */}
             {onOpenChat && (

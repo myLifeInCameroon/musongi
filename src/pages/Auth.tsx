@@ -87,7 +87,7 @@ const Auth = () => {
         <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <img src={musongiLogo} alt="Musongi" className="h-12 w-auto" />
+            <img src={musongiLogo} alt="Musongi" className="h-12 w-auto brightness-0 invert" />
           </div>
 
           {/* Main Hero Text */}
@@ -135,7 +135,7 @@ const Auth = () => {
       <div className="w-full lg:w-1/2 xl:w-2/5 flex flex-col items-center justify-center p-6 sm:p-12 bg-background">
         {/* Mobile Logo */}
         <div className="flex lg:hidden items-center gap-3 mb-8 animate-fade-in">
-          <img src={musongiLogo} alt="Musongi" className="h-16 w-auto" />
+          <img src={musongiLogo} alt="Musongi" className="h-12 w-auto" />
         </div>
 
         {/* Auth Card */}
