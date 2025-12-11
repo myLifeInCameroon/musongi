@@ -18,6 +18,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [submitting, setSubmitting] = useState(false);
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   const { user, loading, signUp, signIn } = useAuth();
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -59,7 +60,16 @@ const Auth = () => {
     setSubmitting(true);
     
     if (isSignUp) {
-      await signUp(email, password);
+      const result = await signUp(email, password);
+      if (result) {
+        setSignUpSuccess(true);
+        // Show success message for a brief moment
+        setTimeout(() => {
+          setSignUpSuccess(false);
+          setEmail("");
+          setPassword("");
+        }, 3000);
+      }
     } else {
       await signIn(email, password);
     }
@@ -141,6 +151,23 @@ const Auth = () => {
           <LanguageSelector />
         </div>
 
+        {/* Sign-up Success Toast */}
+        {signUpSuccess && (
+          <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 flex items-center gap-3 backdrop-blur-sm">
+              <Mail className="h-5 w-5 text-green-500" />
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-semibold text-green-600">
+                  Account created! Check your email.
+                </p>
+                <p className="text-xs text-green-600/80">
+                  Verification link sent to {email}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Mobile Logo */}
         <div className="flex lg:hidden items-center gap-3 mb-8 animate-fade-in">
           <img src={musongiLogo} alt="Musongi" className="h-12 w-auto" />
@@ -197,14 +224,24 @@ const Auth = () => {
               <Button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
-                disabled={submitting}
+                disabled={submitting || signUpSuccess}
               >
                 {submitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    {isSignUp ? "Creating account..." : "Signing in..."}
+                  </>
+                ) : signUpSuccess ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    "Verifying email..."
+                  </>
                 ) : (
-                  <ArrowRight className="h-4 w-4 mr-2" />
+                  <>
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    {isSignUp ? t("auth.button.signup") : t("auth.button.signin")}
+                  </>
                 )}
-                {isSignUp ? t("auth.button.signup") : t("auth.button.signin")}
               </Button>
             </form>
 
@@ -214,6 +251,7 @@ const Auth = () => {
                 onClick={() => {
                   setIsSignUp(!isSignUp);
                   setErrors({});
+                  setSignUpSuccess(false);
                 }}
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
