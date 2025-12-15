@@ -1,12 +1,15 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { CanvasData, FinancialMetrics, YearlyProjection } from "@/types/canvas";
-import { formatCurrency, formatNumber, formatPercentage } from "./calculations";
+import { formatNumber, formatPercentage } from "./calculations";
 
-// Helper function to clean and preserve currency formatting for PDF
-const formatCurrencyForPDF = (value: string): string => {
-  // Replace "/" with space for better readability (1/250/000 FCFA -> 1 250 000 FCFA)
-  return value.replace(/\//g, ' ');
+// Helper function to format numbers for PDF without special characters
+const formatNumberForPDF = (value: number): string => {
+  // Format number with spaces as thousand separators and append FCFA
+  return new Intl.NumberFormat("fr-FR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value).replace(/\u202F/g, ' ') + " FCFA";
 };
 
 // Convert SVG string to PNG image data using canvas
@@ -181,9 +184,9 @@ export async function exportCanvasToPDF(
       body: data.equipment.map((eq) => [
         eq.name,
         eq.quantity.toString(),
-        formatCurrencyForPDF(formatCurrency(eq.unitValue)),
+        formatNumberForPDF(eq.unitValue),
         eq.lifespan.toString(),
-        formatCurrencyForPDF(formatCurrency(eq.unitValue * eq.quantity)),
+        formatNumberForPDF(eq.unitValue * eq.quantity),
       ]),
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
@@ -201,8 +204,8 @@ export async function exportCanvasToPDF(
       body: data.personnel.map((p) => [
         p.role,
         p.count.toString(),
-        formatCurrencyForPDF(formatCurrency(p.monthlySalary)),
-        formatCurrencyForPDF(formatCurrency(p.monthlySalary * p.count)),
+        formatNumberForPDF(p.monthlySalary),
+        formatNumberForPDF(p.monthlySalary * p.count),
       ]),
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
@@ -219,9 +222,9 @@ export async function exportCanvasToPDF(
       head: [["Product/Service", "Price", "Monthly Qty", "Monthly Revenue"]],
       body: data.products.map((p) => [
         p.name,
-        formatCurrencyForPDF(formatCurrency(p.price)),
+        formatNumberForPDF(p.price),
         p.monthlyQuantity.toString(),
-        formatCurrencyForPDF(formatCurrency(p.price * p.monthlyQuantity)),
+        formatNumberForPDF(p.price * p.monthlyQuantity),
       ]),
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
@@ -239,8 +242,8 @@ export async function exportCanvasToPDF(
       body: data.activities.map((a) => [
         a.name,
         a.monthlyCount.toString(),
-        formatCurrencyForPDF(formatCurrency(a.unitValue)),
-        formatCurrencyForPDF(formatCurrency(a.unitValue * a.monthlyCount)),
+        formatNumberForPDF(a.unitValue),
+        formatNumberForPDF(a.unitValue * a.monthlyCount),
       ]),
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
@@ -269,7 +272,7 @@ export async function exportCanvasToPDF(
     autoTable(doc, {
       startY: yPos,
       head: [["Charge", "Monthly Value"]],
-      body: data.otherCharges.map((c) => [c.name, formatCurrencyForPDF(formatCurrency(c.monthlyValue))]),
+      body: data.otherCharges.map((c) => [c.name, formatNumberForPDF(c.monthlyValue)]),
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
       styles: { fontSize: 9 },
@@ -283,7 +286,7 @@ export async function exportCanvasToPDF(
     autoTable(doc, {
       startY: yPos,
       head: [["Material", "Monthly Value"]],
-      body: data.rawMaterials.map((r) => [r.name, formatCurrencyForPDF(formatCurrency(r.monthlyValue))]),
+      body: data.rawMaterials.map((r) => [r.name, formatNumberForPDF(r.monthlyValue)]),
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
       styles: { fontSize: 9 },
@@ -305,11 +308,11 @@ export async function exportCanvasToPDF(
   // Key Metrics
   addSectionTitle("Key Financial Metrics");
   const keyMetrics = [
-    ["Total Investment", formatCurrencyForPDF(formatCurrency(metrics.totalInvestment))],
-    ["Monthly Revenue", formatCurrencyForPDF(formatCurrency(metrics.monthlyRevenue))],
-    ["Monthly Expenses", formatCurrencyForPDF(formatCurrency(metrics.monthlyExpenses))],
-    ["Monthly Cash Flow", formatCurrencyForPDF(formatCurrency(metrics.monthlyCashFlow))],
-    ["Monthly Depreciation", formatCurrencyForPDF(formatCurrency(metrics.monthlyDepreciation))],
+    ["Total Investment", formatNumberForPDF(metrics.totalInvestment)],
+    ["Monthly Revenue", formatNumberForPDF(metrics.monthlyRevenue)],
+    ["Monthly Expenses", formatNumberForPDF(metrics.monthlyExpenses)],
+    ["Monthly Cash Flow", formatNumberForPDF(metrics.monthlyCashFlow)],
+    ["Monthly Depreciation", formatNumberForPDF(metrics.monthlyDepreciation)],
     ["Break-even Period", metrics.breakEvenMonths < 999 ? `${metrics.breakEvenMonths} months` : "Not achievable"],
   ];
   autoTable(doc, {
@@ -331,9 +334,9 @@ export async function exportCanvasToPDF(
     startY: yPos,
     head: [["Period", "Revenue", "Expenses", "Cash Flow"]],
     body: [
-      ["Monthly", formatCurrencyForPDF(formatCurrency(metrics.monthlyRevenue)), formatCurrencyForPDF(formatCurrency(metrics.monthlyExpenses)), formatCurrencyForPDF(formatCurrency(metrics.monthlyCashFlow))],
-      ["Semi-Annual", formatCurrencyForPDF(formatCurrency(metrics.semiAnnualRevenue)), formatCurrencyForPDF(formatCurrency(metrics.semiAnnualExpenses)), formatCurrencyForPDF(formatCurrency(metrics.semiAnnualCashFlow))],
-      ["Annual", formatCurrencyForPDF(formatCurrency(metrics.annualRevenue)), formatCurrencyForPDF(formatCurrency(metrics.annualExpenses)), formatCurrencyForPDF(formatCurrency(metrics.annualCashFlow))],
+      ["Monthly", formatNumberForPDF(metrics.monthlyRevenue), formatNumberForPDF(metrics.monthlyExpenses), formatNumberForPDF(metrics.monthlyCashFlow)],
+      ["Semi-Annual", formatNumberForPDF(metrics.semiAnnualRevenue), formatNumberForPDF(metrics.semiAnnualExpenses), formatNumberForPDF(metrics.semiAnnualCashFlow)],
+      ["Annual", formatNumberForPDF(metrics.annualRevenue), formatNumberForPDF(metrics.annualExpenses), formatNumberForPDF(metrics.annualCashFlow)],
     ],
     theme: "striped",
     headStyles: { fillColor: [59, 130, 246] },
@@ -348,10 +351,10 @@ export async function exportCanvasToPDF(
     head: [["Year", "Revenue", "Expenses", "Profit", "Cumulative Profit", "ROI"]],
     body: projections.map((p) => [
       `Year ${p.year}`,
-      formatCurrencyForPDF(formatCurrency(p.revenue)),
-      formatCurrencyForPDF(formatCurrency(p.expenses)),
-      formatCurrencyForPDF(formatCurrency(p.profit)),
-      formatCurrencyForPDF(formatCurrency(p.cumulativeProfit)),
+      formatNumberForPDF(p.revenue),
+      formatNumberForPDF(p.expenses),
+      formatNumberForPDF(p.profit),
+      formatNumberForPDF(p.cumulativeProfit),
       formatPercentage(p.roi),
     ]),
     theme: "striped",
