@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { CanvasData, FinancialMetrics, YearlyProjection } from "@/types/canvas";
-import { formatNumber, formatPercentage } from "./calculations";
+import { formatPercentage } from "./calculations";
 
 // Currency symbols mapping
 const currencySymbols: Record<string, string> = {
@@ -385,7 +385,7 @@ export async function exportCanvasToPDF(
     autoTable(doc, {
       startY: yPos,
       head: [["Segment", "Monthly Target"]],
-      body: data.customers.map((c) => [c.name, formatNumber(c.monthlyTarget)]),
+      body: data.customers.map((c) => [c.name, fmt(c.monthlyTarget)]),
       theme: "striped",
       headStyles: { fillColor: [59, 130, 246] },
       styles: { fontSize: 9 },
