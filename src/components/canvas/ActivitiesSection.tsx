@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { Activity } from "@/types/canvas";
 import { formatCurrency } from "@/lib/calculations";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ActivitiesSectionProps {
   items: Activity[];
@@ -18,6 +19,7 @@ export function ActivitiesSection({
   onUpdate,
   onRemove,
 }: ActivitiesSectionProps) {
+  const { t } = useLanguage();
   const totalMonthlyCost = items.reduce(
     (sum, a) => sum + a.unitValue * a.monthlyCount,
     0
@@ -27,8 +29,8 @@ export function ActivitiesSection({
     <div className="section-card animate-fade-in" style={{ animationDelay: "0.25s" }}>
       <SectionHeader
         icon={Cog}
-        title="Operational Activities"
-        subtitle="Core business activities and their costs"
+        title={t("activities.title")}
+        subtitle={t("activities.subtitle")}
       />
 
       <div className="space-y-3">
@@ -39,15 +41,15 @@ export function ActivitiesSection({
             style={{ animationDelay: `${index * 0.05}s` }}
           >
             <div className="col-span-2 sm:col-span-1">
-              <label className="text-xs text-muted-foreground mb-1 block">Activity</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("activities.activity")}</label>
               <Input
-                placeholder="e.g., Network Deployment"
+                placeholder={t("activities.activityPlaceholder")}
                 value={item.name}
                 onChange={(e) => onUpdate(item.id, { name: e.target.value })}
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Monthly Count</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("activities.monthlyCount")}</label>
               <Input
                 type="number"
                 min="0"
@@ -58,7 +60,7 @@ export function ActivitiesSection({
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Unit Cost</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("activities.unitCost")}</label>
               <Input
                 type="number"
                 min="0"
@@ -69,7 +71,7 @@ export function ActivitiesSection({
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Monthly Cost</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("activities.monthlyCost")}</label>
               <div className="h-10 flex items-center px-3 rounded-lg bg-background text-sm font-mono text-muted-foreground">
                 {formatCurrency(item.unitValue * item.monthlyCount)}
               </div>
@@ -91,10 +93,10 @@ export function ActivitiesSection({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
         <Button variant="outline" size="sm" onClick={onAdd}>
           <Plus className="h-4 w-4 mr-1" />
-          Add Activity
+          {t("activities.add")}
         </Button>
         <div className="text-sm">
-          <span className="text-muted-foreground">Total Monthly Cost:</span>{" "}
+          <span className="text-muted-foreground">{t("activities.totalMonthlyCost")}:</span>{" "}
           <span className="font-mono font-semibold text-foreground">
             {formatCurrency(totalMonthlyCost)}
           </span>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { Product } from "@/types/canvas";
 import { formatCurrency } from "@/lib/calculations";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProductsSectionProps {
   items: Product[];
@@ -18,6 +19,7 @@ export function ProductsSection({
   onUpdate,
   onRemove,
 }: ProductsSectionProps) {
+  const { t } = useLanguage();
   const totalMonthlyRevenue = items.reduce(
     (sum, p) => sum + p.price * p.monthlyQuantity,
     0
@@ -27,8 +29,8 @@ export function ProductsSection({
     <div className="section-card animate-fade-in" style={{ animationDelay: "0.2s" }}>
       <SectionHeader
         icon={Package}
-        title="Products & Services"
-        subtitle="Revenue-generating offerings"
+        title={t("products.title")}
+        subtitle={t("products.subtitle")}
       />
 
       <div className="space-y-3">
@@ -39,15 +41,15 @@ export function ProductsSection({
             style={{ animationDelay: `${index * 0.05}s` }}
           >
             <div className="col-span-2 sm:col-span-1">
-              <label className="text-xs text-muted-foreground mb-1 block">Name</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("products.name")}</label>
               <Input
-                placeholder="e.g., K-DISCOVERY"
+                placeholder={t("products.namePlaceholder")}
                 value={item.name}
                 onChange={(e) => onUpdate(item.id, { name: e.target.value })}
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Price</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("products.price")}</label>
               <Input
                 type="number"
                 min="0"
@@ -58,7 +60,7 @@ export function ProductsSection({
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Monthly Qty</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("products.monthlyQty")}</label>
               <Input
                 type="number"
                 min="0"
@@ -69,7 +71,7 @@ export function ProductsSection({
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Monthly Revenue</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("products.monthlyRevenue")}</label>
               <div className="h-10 flex items-center px-3 rounded-lg bg-background text-sm font-mono text-success">
                 {formatCurrency(item.price * item.monthlyQuantity)}
               </div>
@@ -91,10 +93,10 @@ export function ProductsSection({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
         <Button variant="outline" size="sm" onClick={onAdd}>
           <Plus className="h-4 w-4 mr-1" />
-          Add Product
+          {t("products.add")}
         </Button>
         <div className="text-sm">
-          <span className="text-muted-foreground">Total Monthly Revenue:</span>{" "}
+          <span className="text-muted-foreground">{t("products.totalMonthlyRevenue")}:</span>{" "}
           <span className="font-mono font-semibold text-success">
             {formatCurrency(totalMonthlyRevenue)}
           </span>

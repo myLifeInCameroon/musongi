@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "./SectionHeader";
 import { CanvasData } from "@/types/canvas";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProjectInfoSectionProps {
   data: CanvasData["projectInfo"];
@@ -10,52 +11,54 @@ interface ProjectInfoSectionProps {
 }
 
 export function ProjectInfoSection({ data, onUpdate }: ProjectInfoSectionProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="section-card animate-fade-in">
       <SectionHeader
         icon={Building2}
-        title="Project Information"
-        subtitle="Basic details about your business"
+        title={t("projectInfo.title")}
+        subtitle={t("projectInfo.subtitle")}
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-2">
-          <Label htmlFor="project-name">Project Name</Label>
+          <Label htmlFor="project-name">{t("projectInfo.projectName")}</Label>
           <Input
             id="project-name"
-            placeholder="e.g., Konnectik"
+            placeholder={t("projectInfo.projectNamePlaceholder")}
             value={data.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="promoter">Promoter Name</Label>
+          <Label htmlFor="promoter">{t("projectInfo.promoter")}</Label>
           <Input
             id="promoter"
-            placeholder="e.g., John Doe"
+            placeholder={t("projectInfo.promoterPlaceholder")}
             value={data.promoter}
             onChange={(e) => onUpdate({ promoter: e.target.value })}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
+          <Label htmlFor="location">{t("projectInfo.location")}</Label>
           <Input
             id="location"
-            placeholder="e.g., Douala, Cameroon"
+            placeholder={t("projectInfo.locationPlaceholder")}
             value={data.location}
             onChange={(e) => onUpdate({ location: e.target.value })}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="sector">Industry Sector</Label>
+          <Label htmlFor="sector">{t("projectInfo.sector")}</Label>
           <Input
             id="sector"
-            placeholder="e.g., Telecommunications"
+            placeholder={t("projectInfo.sectorPlaceholder")}
             value={data.sector}
             onChange={(e) => onUpdate({ sector: e.target.value })}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="date">Start Date</Label>
+          <Label htmlFor="date">{t("projectInfo.startDate")}</Label>
           <Input
             id="date"
             type="date"
