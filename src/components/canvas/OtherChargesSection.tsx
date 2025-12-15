@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { OtherCharge, RawMaterial } from "@/types/canvas";
-import { formatCurrency } from "@/lib/calculations";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface OtherChargesSectionProps {
@@ -27,7 +26,7 @@ export function OtherChargesSection({
   onUpdateRawMaterial,
   onRemoveRawMaterial,
 }: OtherChargesSectionProps) {
-  const { t } = useLanguage();
+  const { t, formatCurrencyValue } = useLanguage();
   const totalCharges = charges.reduce((sum, c) => sum + c.monthlyValue, 0);
   const totalRawMaterials = rawMaterials.reduce((sum, r) => sum + r.monthlyValue, 0);
 
@@ -82,7 +81,7 @@ export function OtherChargesSection({
           </Button>
           <div className="mt-2 text-sm">
             <span className="text-muted-foreground">{t("common.total")}:</span>{" "}
-            <span className="font-mono font-medium">{formatCurrency(totalCharges)}</span>
+            <span className="font-mono font-medium">{formatCurrencyValue(totalCharges)}</span>
           </div>
         </div>
 
@@ -128,7 +127,7 @@ export function OtherChargesSection({
           </Button>
           <div className="mt-2 text-sm">
             <span className="text-muted-foreground">{t("common.total")}:</span>{" "}
-            <span className="font-mono font-medium">{formatCurrency(totalRawMaterials)}</span>
+            <span className="font-mono font-medium">{formatCurrencyValue(totalRawMaterials)}</span>
           </div>
         </div>
       </div>

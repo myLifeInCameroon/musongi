@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { Personnel } from "@/types/canvas";
-import { formatCurrency } from "@/lib/calculations";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PersonnelSectionProps {
@@ -19,7 +18,7 @@ export function PersonnelSection({
   onUpdate,
   onRemove,
 }: PersonnelSectionProps) {
-  const { t } = useLanguage();
+  const { t, formatCurrencyValue } = useLanguage();
   const totalMonthlyCost = items.reduce(
     (sum, p) => sum + p.monthlySalary * p.count,
     0
@@ -100,7 +99,7 @@ export function PersonnelSection({
           <div>
             <span className="text-muted-foreground">{t("personnel.monthlyCost")}:</span>{" "}
             <span className="font-mono font-semibold text-primary">
-              {formatCurrency(totalMonthlyCost)}
+              {formatCurrencyValue(totalMonthlyCost)}
             </span>
           </div>
         </div>

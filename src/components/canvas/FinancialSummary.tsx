@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown, DollarSign, Clock, PiggyBank, BarChart3 } from "lucide-react";
 import { FinancialMetrics } from "@/types/canvas";
-import { formatCurrency, formatNumber } from "@/lib/calculations";
+import { formatNumber } from "@/lib/calculations";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -46,7 +46,7 @@ function StatCard({ icon: Icon, label, value, subValue, variant = "default" }: S
 }
 
 export function FinancialSummary({ metrics }: FinancialSummaryProps) {
-  const { t } = useLanguage();
+  const { t, formatCurrencyValue } = useLanguage();
   const isProfitable = metrics.monthlyCashFlow > 0;
 
   return (
@@ -66,22 +66,22 @@ export function FinancialSummary({ metrics }: FinancialSummaryProps) {
         <StatCard
           icon={DollarSign}
           label={t("financial.monthlyRevenue")}
-          value={formatCurrency(metrics.monthlyRevenue)}
-          subValue={`${formatCurrency(metrics.annualRevenue)}/${t("common.year").toLowerCase()}`}
+          value={formatCurrencyValue(metrics.monthlyRevenue)}
+          subValue={`${formatCurrencyValue(metrics.annualRevenue)}/${t("common.year").toLowerCase()}`}
           variant="success"
         />
         <StatCard
           icon={TrendingDown}
           label={t("financial.monthlyExpenses")}
-          value={formatCurrency(metrics.monthlyExpenses)}
-          subValue={`${formatCurrency(metrics.annualExpenses)}/${t("common.year").toLowerCase()}`}
+          value={formatCurrencyValue(metrics.monthlyExpenses)}
+          subValue={`${formatCurrencyValue(metrics.annualExpenses)}/${t("common.year").toLowerCase()}`}
           variant="warning"
         />
         <StatCard
           icon={isProfitable ? TrendingUp : TrendingDown}
           label={t("financial.monthlyCashFlow")}
-          value={formatCurrency(metrics.monthlyCashFlow)}
-          subValue={`${formatCurrency(metrics.annualCashFlow)}/${t("common.year").toLowerCase()}`}
+          value={formatCurrencyValue(metrics.monthlyCashFlow)}
+          subValue={`${formatCurrencyValue(metrics.annualCashFlow)}/${t("common.year").toLowerCase()}`}
           variant={isProfitable ? "success" : "danger"}
         />
         <StatCard
@@ -101,7 +101,7 @@ export function FinancialSummary({ metrics }: FinancialSummaryProps) {
             <span className="text-xs sm:text-sm font-medium">{t("financial.totalInvestment")}</span>
           </div>
           <p className="text-lg sm:text-2xl font-mono font-semibold tracking-tight text-foreground break-all">
-            {formatCurrency(metrics.totalInvestment)}
+            {formatCurrencyValue(metrics.totalInvestment)}
           </p>
         </div>
         <div className="p-3 sm:p-4 rounded-lg bg-muted/50">
@@ -110,7 +110,7 @@ export function FinancialSummary({ metrics }: FinancialSummaryProps) {
             <span className="text-xs sm:text-sm font-medium">{t("financial.monthlyDepreciation")}</span>
           </div>
           <p className="text-lg sm:text-2xl font-mono font-semibold tracking-tight text-foreground break-all">
-            {formatCurrency(metrics.monthlyDepreciation)}
+            {formatCurrencyValue(metrics.monthlyDepreciation)}
           </p>
         </div>
       </div>

@@ -23,7 +23,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const { t } = useLanguage();
+  const { t, currency } = useLanguage();
   
   const {
     data,
@@ -72,13 +72,13 @@ const Index = () => {
 
   const handleExportPDF = useCallback(() => {
     try {
-      exportCanvasToPDF(data, metrics, projections);
+      exportCanvasToPDF(data, metrics, projections, currency);
       toast.success("PDF exported successfully!");
     } catch (error) {
       console.error("Error exporting PDF:", error);
       toast.error("Failed to export PDF. Please try again.");
     }
-  }, [data, metrics, projections]);
+  }, [data, metrics, projections, currency]);
 
   if (authLoading || dataLoading) {
     return (

@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { Product } from "@/types/canvas";
-import { formatCurrency } from "@/lib/calculations";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProductsSectionProps {
@@ -19,7 +18,7 @@ export function ProductsSection({
   onUpdate,
   onRemove,
 }: ProductsSectionProps) {
-  const { t } = useLanguage();
+  const { t, formatCurrencyValue } = useLanguage();
   const totalMonthlyRevenue = items.reduce(
     (sum, p) => sum + p.price * p.monthlyQuantity,
     0
@@ -73,7 +72,7 @@ export function ProductsSection({
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">{t("products.monthlyRevenue")}</label>
               <div className="h-10 flex items-center px-3 rounded-lg bg-background text-sm font-mono text-success">
-                {formatCurrency(item.price * item.monthlyQuantity)}
+                {formatCurrencyValue(item.price * item.monthlyQuantity)}
               </div>
             </div>
             <div className="flex items-end justify-end">
@@ -98,7 +97,7 @@ export function ProductsSection({
         <div className="text-sm">
           <span className="text-muted-foreground">{t("products.totalMonthlyRevenue")}:</span>{" "}
           <span className="font-mono font-semibold text-success">
-            {formatCurrency(totalMonthlyRevenue)}
+            {formatCurrencyValue(totalMonthlyRevenue)}
           </span>
         </div>
       </div>
