@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { Personnel } from "@/types/canvas";
 import { formatCurrency } from "@/lib/calculations";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PersonnelSectionProps {
   items: Personnel[];
@@ -18,6 +19,7 @@ export function PersonnelSection({
   onUpdate,
   onRemove,
 }: PersonnelSectionProps) {
+  const { t } = useLanguage();
   const totalMonthlyCost = items.reduce(
     (sum, p) => sum + p.monthlySalary * p.count,
     0
@@ -28,8 +30,8 @@ export function PersonnelSection({
     <div className="section-card animate-fade-in" style={{ animationDelay: "0.15s" }}>
       <SectionHeader
         icon={Users}
-        title="Personnel"
-        subtitle="Team members and salary structure"
+        title={t("personnel.title")}
+        subtitle={t("personnel.subtitle")}
       />
 
       <div className="space-y-3">
@@ -40,15 +42,15 @@ export function PersonnelSection({
             style={{ animationDelay: `${index * 0.05}s` }}
           >
             <div className="col-span-2 sm:col-span-1">
-              <label className="text-xs text-muted-foreground mb-1 block">Role</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("personnel.role")}</label>
               <Input
-                placeholder="e.g., Product Lead"
+                placeholder={t("personnel.rolePlaceholder")}
                 value={item.role}
                 onChange={(e) => onUpdate(item.id, { role: e.target.value })}
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Count</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("personnel.count")}</label>
               <Input
                 type="number"
                 min="1"
@@ -59,7 +61,7 @@ export function PersonnelSection({
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Monthly Salary</label>
+              <label className="text-xs text-muted-foreground mb-1 block">{t("personnel.monthlySalary")}</label>
               <Input
                 type="number"
                 min="0"
@@ -86,17 +88,17 @@ export function PersonnelSection({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
         <Button variant="outline" size="sm" onClick={onAdd}>
           <Plus className="h-4 w-4 mr-1" />
-          Add Personnel
+          {t("personnel.add")}
         </Button>
         <div className="flex gap-6 text-sm">
           <div>
-            <span className="text-muted-foreground">Total Employees:</span>{" "}
+            <span className="text-muted-foreground">{t("personnel.totalEmployees")}:</span>{" "}
             <span className="font-mono font-semibold text-foreground">
               {totalEmployees}
             </span>
           </div>
           <div>
-            <span className="text-muted-foreground">Monthly Cost:</span>{" "}
+            <span className="text-muted-foreground">{t("personnel.monthlyCost")}:</span>{" "}
             <span className="font-mono font-semibold text-primary">
               {formatCurrency(totalMonthlyCost)}
             </span>

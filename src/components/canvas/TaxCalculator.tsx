@@ -24,6 +24,7 @@ import {
 import { TAX_REGIONS, getRegionById, calculateAfterTaxProfit, calculateTaxAmount } from "@/lib/taxRates";
 import { formatCurrency } from "@/lib/calculations";
 import { YearlyProjection } from "@/types/canvas";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TaxCalculatorProps {
   projections: YearlyProjection[];
@@ -41,6 +42,7 @@ export function TaxCalculator({
   onCustomTaxRateChange,
 }: TaxCalculatorProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const { t } = useLanguage();
 
   const selectedRegion = getRegionById(region);
   const effectiveTaxRate = region === "custom" ? customTaxRate : (selectedRegion?.corporateTaxRate || 30);
@@ -59,7 +61,7 @@ export function TaxCalculator({
           <CollapsibleTrigger className="flex items-center justify-between w-full">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Calculator className="h-5 w-5 text-primary" />
-              Tax Analysis
+              {t("tax.title")}
             </CardTitle>
             <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
           </CollapsibleTrigger>
@@ -69,10 +71,10 @@ export function TaxCalculator({
             {/* Region Selection */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Select Region</Label>
+                <Label>{t("tax.selectRegion")}</Label>
                 <Select value={region} onValueChange={onRegionChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose your region" />
+                    <SelectValue placeholder={t("tax.choosePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent className="max-h-80">
                     {Object.entries(regionsByZone).map(([zone, regions]) => (
@@ -93,7 +95,7 @@ export function TaxCalculator({
 
               {region === "custom" && (
                 <div className="space-y-2">
-                  <Label>Custom Tax Rate (%)</Label>
+                  <Label>{t("tax.customRate")}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -113,10 +115,10 @@ export function TaxCalculator({
                 <div>
                   <p className="font-medium">{selectedRegion.name}</p>
                   <p className="text-muted-foreground">
-                    Corporate Tax: {selectedRegion.corporateTaxRate}% • VAT: {selectedRegion.vatRate}%
+                    {t("tax.corporateTax")}: {selectedRegion.corporateTaxRate}% • {t("tax.vat")}: {selectedRegion.vatRate}%
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {selectedRegion.description} • Rates are indicative, consult local tax authorities
+                    {selectedRegion.description}
                   </p>
                 </div>
               </div>
@@ -127,15 +129,15 @@ export function TaxCalculator({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 font-medium">Year</th>
+                    <th className="text-left py-2 font-medium">{t("common.year")}</th>
                     <th className="text-right py-2 font-medium">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger className="flex items-center gap-1 ml-auto">
-                            Pre-Tax Profit
+                            {t("tax.preTaxProfit")}
                             <Info className="h-3 w-3" />
                           </TooltipTrigger>
-                          <TooltipContent>Revenue minus all expenses</TooltipContent>
+                          <TooltipContent>{t("tax.tooltipPreTax")}</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </th>
@@ -143,7 +145,7 @@ export function TaxCalculator({
                       Tax ({effectiveTaxRate}%)
                     </th>
                     <th className="text-right py-2 font-medium text-green-600">
-                      After-Tax Profit
+                      {t("tax.afterTaxProfit")}
                     </th>
                   </tr>
                 </thead>
@@ -153,7 +155,7 @@ export function TaxCalculator({
                     const afterTax = calculateAfterTaxProfit(p.profit, effectiveTaxRate);
                     return (
                       <tr key={p.year} className="border-b border-border/50">
-                        <td className="py-3 font-medium">Year {p.year}</td>
+                        <td className="py-3 font-medium">{t("common.year")} {p.year}</td>
                         <td className="py-3 text-right">
                           {formatCurrency(p.profit)}
                         </td>
@@ -169,7 +171,7 @@ export function TaxCalculator({
                 </tbody>
                 <tfoot>
                   <tr className="font-semibold">
-                    <td className="py-3">3-Year Total</td>
+                    <td className="py-3">{t("tax.threeYearTotal")}</td>
                     <td className="py-3 text-right">
                       {formatCurrency(projections.reduce((sum, p) => sum + p.profit, 0))}
                     </td>
@@ -189,7 +191,7 @@ export function TaxCalculator({
             </div>
 
             <p className="text-xs text-muted-foreground">
-              * Tax calculations are estimates for planning purposes only. Actual taxes may vary based on local regulations, deductions, and incentives. Always consult a qualified tax professional.
+              {t("tax.disclaimer")}
             </p>
           </CardContent>
         </CollapsibleContent>

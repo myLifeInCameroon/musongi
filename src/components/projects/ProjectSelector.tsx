@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface ProjectSummary {
   id: string;
@@ -49,6 +50,7 @@ export function ProjectSelector({
   const [newProjectName, setNewProjectName] = useState("");
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { t } = useLanguage();
 
   const currentProject = projects.find((p) => p.id === currentProjectId);
 
@@ -92,7 +94,7 @@ export function ProjectSelector({
           <Button variant="outline" size="sm" className="gap-2 max-w-[200px]">
             <FolderOpen className="h-4 w-4 shrink-0" />
             <span className="truncate">
-              {isLoading ? "Loading..." : currentProject?.project_name || "Select Project"}
+              {isLoading ? t("common.loading") : currentProject?.project_name || t("project.selectProject")}
             </span>
           </Button>
         </DropdownMenuTrigger>
@@ -133,7 +135,7 @@ export function ProjectSelector({
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setShowNewDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            New Project
+            {t("project.newProject")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -142,30 +144,30 @@ export function ProjectSelector({
       <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Project</DialogTitle>
+            <DialogTitle>{t("project.createTitle")}</DialogTitle>
             <DialogDescription>
-              Start a new business profitability canvas project.
+              {t("project.createDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="project-name">Project Name</Label>
+              <Label htmlFor="project-name">{t("project.projectName")}</Label>
               <Input
                 id="project-name"
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
-                placeholder="My New Business"
+                placeholder={t("project.projectNamePlaceholder")}
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleCreate} disabled={creating || !newProjectName.trim()}>
               {creating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Create Project
+              {t("project.createButton")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -175,18 +177,18 @@ export function ProjectSelector({
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Project</DialogTitle>
+            <DialogTitle>{t("project.deleteTitle")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{projectToDelete?.project_name}"? This action cannot be undone.
+              {t("project.deleteDescription").replace("{name}", projectToDelete?.project_name || "")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
               {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
