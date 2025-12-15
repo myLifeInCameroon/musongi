@@ -22,7 +22,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { TAX_REGIONS, getRegionById, calculateAfterTaxProfit, calculateTaxAmount } from "@/lib/taxRates";
-import { formatCurrency } from "@/lib/calculations";
 import { YearlyProjection } from "@/types/canvas";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -42,7 +41,7 @@ export function TaxCalculator({
   onCustomTaxRateChange,
 }: TaxCalculatorProps) {
   const [isOpen, setIsOpen] = useState(true);
-  const { t } = useLanguage();
+  const { t, formatCurrencyValue } = useLanguage();
 
   const selectedRegion = getRegionById(region);
   const effectiveTaxRate = region === "custom" ? customTaxRate : (selectedRegion?.corporateTaxRate || 30);
@@ -157,13 +156,13 @@ export function TaxCalculator({
                       <tr key={p.year} className="border-b border-border/50">
                         <td className="py-3 font-medium">{t("common.year")} {p.year}</td>
                         <td className="py-3 text-right">
-                          {formatCurrency(p.profit)}
+                          {formatCurrencyValue(p.profit)}
                         </td>
                         <td className="py-3 text-right text-destructive">
-                          {p.profit > 0 ? `-${formatCurrency(tax)}` : "—"}
+                          {p.profit > 0 ? `-${formatCurrencyValue(tax)}` : "—"}
                         </td>
                         <td className="py-3 text-right font-semibold text-green-600">
-                          {formatCurrency(afterTax)}
+                          {formatCurrencyValue(afterTax)}
                         </td>
                       </tr>
                     );
@@ -173,15 +172,15 @@ export function TaxCalculator({
                   <tr className="font-semibold">
                     <td className="py-3">{t("tax.threeYearTotal")}</td>
                     <td className="py-3 text-right">
-                      {formatCurrency(projections.reduce((sum, p) => sum + p.profit, 0))}
+                      {formatCurrencyValue(projections.reduce((sum, p) => sum + p.profit, 0))}
                     </td>
                     <td className="py-3 text-right text-destructive">
-                      -{formatCurrency(
+                      -{formatCurrencyValue(
                         projections.reduce((sum, p) => sum + calculateTaxAmount(p.profit, effectiveTaxRate), 0)
                       )}
                     </td>
                     <td className="py-3 text-right text-green-600">
-                      {formatCurrency(
+                      {formatCurrencyValue(
                         projections.reduce((sum, p) => sum + calculateAfterTaxProfit(p.profit, effectiveTaxRate), 0)
                       )}
                     </td>

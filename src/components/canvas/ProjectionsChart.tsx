@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { TrendingUp, Percent } from "lucide-react";
 import { YearlyProjection } from "@/types/canvas";
-import { formatCurrency, formatPercentage } from "@/lib/calculations";
+import { formatPercentage } from "@/lib/calculations";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -29,7 +29,7 @@ export function ProjectionsChart({
   growthRate,
   onGrowthRateChange,
 }: ProjectionsChartProps) {
-  const { t } = useLanguage();
+  const { t, formatCurrencyValue } = useLanguage();
   
   const chartData = projections.map((p) => ({
     year: `Y${p.year}`,
@@ -54,7 +54,7 @@ export function ProjectionsChart({
               <span className="font-mono font-medium truncate">
                 {entry.name === "ROI"
                   ? formatPercentage(entry.value)
-                  : formatCurrency(entry.value)}
+                  : formatCurrencyValue(entry.value)}
               </span>
             </div>
           ))}
@@ -200,16 +200,16 @@ export function ProjectionsChart({
             <div className="space-y-1.5 sm:space-y-2">
               <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-muted-foreground">{t("projections.revenue")}</span>
-                <span className="font-mono text-success truncate ml-2">{formatCurrency(p.revenue)}</span>
+                <span className="font-mono text-success truncate ml-2">{formatCurrencyValue(p.revenue)}</span>
               </div>
               <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-muted-foreground">{t("projections.expenses")}</span>
-                <span className="font-mono truncate ml-2">{formatCurrency(p.expenses)}</span>
+                <span className="font-mono truncate ml-2">{formatCurrencyValue(p.expenses)}</span>
               </div>
               <div className="flex justify-between text-xs sm:text-sm pt-1.5 sm:pt-2 border-t border-border">
                 <span className="font-medium">{t("projections.profit")}</span>
                 <span className={`font-mono font-medium truncate ml-2 ${p.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {formatCurrency(p.profit)}
+                  {formatCurrencyValue(p.profit)}
                 </span>
               </div>
               <div className="flex justify-between text-xs sm:text-sm">

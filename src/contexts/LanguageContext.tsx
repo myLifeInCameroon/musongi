@@ -1,11 +1,15 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 type Language = "en" | "fr";
+type Currency = "XAF" | "USD" | "EUR";
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  currency: Currency;
+  setCurrency: (currency: Currency) => void;
+  formatCurrencyValue: (value: number) => string;
 }
 
 const translations: Record<Language, Record<string, string>> = {
@@ -399,13 +403,39 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     return (saved as Language) || "en";
   });
 
+  const [currency, setCurrencyState] = useState<Currency>(() => {
+    const saved = localStorage.getItem("musongi-currency");
+    return (saved as Currency) || "XAF";
+  });
+
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem("musongi-language", lang);
   };
 
+  const setCurrency = (curr: Currency) => {
+    setCurrencyState(curr);
+    localStorage.setItem("musongi-currency", curr);
+  };
+
   const t = (key: string): string => {
     return translations[language][key] || key;
+  };
+
+  const formatCurrencyValue = (value: number): string => {
+    const currencyConfig: Record<Currency, { locale: string; currency: string; symbol: string }> = {
+      XAF: { locale: "fr-FR", currency: "XAF", symbol: "FCFA" },
+      USD: { locale: "en-US", currency: "USD", symbol: "$" },
+      EUR: { locale: "fr-FR", currency: "EUR", symbol: "€" },
+    };
+    
+    const config = currencyConfig[currency];
+    return new Intl.NumberFormat(config.locale, {
+      style: "currency",
+      currency: config.currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
   };
 
   useEffect(() => {
@@ -413,7 +443,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, currency, setCurrency, formatCurrencyValue }}>
       {children}
     </LanguageContext.Provider>
   );

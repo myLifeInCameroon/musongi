@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProjectSelector, ProjectSummary } from "@/components/projects/ProjectSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { CurrencySelector } from "@/components/CurrencySelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import musongiLogo from "@/assets/musongi-logo.svg";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -95,6 +96,7 @@ export function Header({
               </div>
             )}
 
+            <CurrencySelector />
             <LanguageSelector />
             <ThemeToggle />
 
@@ -192,6 +194,10 @@ export function Header({
 
                   <div className="border-t pt-4 space-y-2">
                     <label className="text-sm font-medium">Settings</label>
+                    <div className="flex items-center justify-between py-2">
+                      <span className="text-sm">Currency</span>
+                      <CurrencySelector />
+                    </div>
                     <div className="flex items-center justify-between py-2">
                       <span className="text-sm">Language</span>
                       <LanguageSelector />

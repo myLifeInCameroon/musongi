@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { Equipment } from "@/types/canvas";
-import { formatCurrency, calculateDepreciation } from "@/lib/calculations";
+import { calculateDepreciation } from "@/lib/calculations";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,7 +21,7 @@ export function EquipmentSection({
   onUpdate,
   onRemove,
 }: EquipmentSectionProps) {
-  const { t } = useLanguage();
+  const { t, formatCurrencyValue } = useLanguage();
   const totalInvestment = items.reduce(
     (sum, eq) => sum + eq.unitValue * eq.quantity,
     0
@@ -50,6 +50,7 @@ export function EquipmentSection({
               onUpdate={onUpdate}
               onRemove={onRemove}
               index={index}
+              formatCurrencyValue={formatCurrencyValue}
             />
           );
         })}
@@ -64,13 +65,13 @@ export function EquipmentSection({
           <div className="flex-1">
             <span className="text-muted-foreground">{t("equipment.totalInvestment")}:</span>{" "}
             <span className="font-mono font-semibold text-foreground block sm:inline mt-1 sm:mt-0">
-              {formatCurrency(totalInvestment)}
+              {formatCurrencyValue(totalInvestment)}
             </span>
           </div>
           <div className="flex-1">
             <span className="text-muted-foreground">{t("equipment.monthlyDepreciationTotal")}:</span>{" "}
             <span className="font-mono font-semibold text-primary block sm:inline mt-1 sm:mt-0">
-              {formatCurrency(totalMonthlyDepreciation)}
+              {formatCurrencyValue(totalMonthlyDepreciation)}
             </span>
           </div>
         </div>
@@ -85,12 +86,14 @@ function MobileEquipmentCard({
   onUpdate,
   onRemove,
   index,
+  formatCurrencyValue,
 }: {
   item: Equipment;
   depreciation: number;
   onUpdate: (id: string, updates: Partial<Equipment>) => void;
   onRemove: (id: string) => void;
   index: number;
+  formatCurrencyValue: (value: number) => string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useLanguage();
@@ -165,7 +168,7 @@ function MobileEquipmentCard({
             <div className="flex-1">
               <label className="text-xs text-muted-foreground mb-1 block">{t("equipment.monthlyDepreciation")}</label>
               <div className="h-10 flex items-center px-3 rounded-lg bg-background text-sm font-mono text-muted-foreground">
-                {formatCurrency(depreciation)}
+                {formatCurrencyValue(depreciation)}
               </div>
             </div>
             <Button
@@ -183,11 +186,11 @@ function MobileEquipmentCard({
         <div className="sm:hidden text-xs text-muted-foreground space-y-1">
           <div className="flex justify-between">
             <span>{t("equipment.totalValue")}:</span>
-            <span className="font-mono">{formatCurrency(item.unitValue * item.quantity)}</span>
+            <span className="font-mono">{formatCurrencyValue(item.unitValue * item.quantity)}</span>
           </div>
           <div className="flex justify-between">
             <span>{t("equipment.monthlyDepreciationTotal")}:</span>
-            <span className="font-mono text-primary">{formatCurrency(depreciation)}</span>
+            <span className="font-mono text-primary">{formatCurrencyValue(depreciation)}</span>
           </div>
         </div>
       </div>

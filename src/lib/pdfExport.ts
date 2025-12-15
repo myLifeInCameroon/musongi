@@ -3,13 +3,29 @@ import autoTable from "jspdf-autotable";
 import { CanvasData, FinancialMetrics, YearlyProjection } from "@/types/canvas";
 import { formatNumber, formatPercentage } from "./calculations";
 
+// Currency symbols mapping
+const currencySymbols: Record<string, string> = {
+  XAF: "FCFA",
+  USD: "$",
+  EUR: "€",
+};
+
 // Helper function to format numbers for PDF without special characters
-const formatNumberForPDF = (value: number): string => {
-  // Format number with spaces as thousand separators and append FCFA
-  return new Intl.NumberFormat("fr-FR", {
+const formatNumberForPDF = (value: number, currency: string = "XAF"): string => {
+  const symbol = currencySymbols[currency] || currency;
+  // Format number with spaces as thousand separators
+  const formattedNumber = new Intl.NumberFormat("fr-FR", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value).replace(/\u202F/g, ' ') + " FCFA";
+  }).format(value).replace(/\u202F/g, ' ');
+  
+  // Place symbol appropriately based on currency
+  if (currency === "USD") {
+    return `$${formattedNumber}`;
+  } else if (currency === "EUR") {
+    return `${formattedNumber} €`;
+  }
+  return `${formattedNumber} ${symbol}`;
 };
 
 // Convert SVG string to PNG image data using canvas
@@ -122,11 +138,15 @@ const generatePieChartSVG = (labels: string[], values: number[], title: string):
 export async function exportCanvasToPDF(
   data: CanvasData,
   metrics: FinancialMetrics,
-  projections: YearlyProjection[]
+  projections: YearlyProjection[],
+  currency: string = "XAF"
 ): Promise<void> {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   let yPos = 20;
+
+  // Create a currency-aware format function
+  const fmt = (value: number) => formatNumberForPDF(value, currency);
 
   // Helper function to add section title
   const addSectionTitle = (title: string) => {

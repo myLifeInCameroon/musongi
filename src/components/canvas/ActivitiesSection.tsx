@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { Activity } from "@/types/canvas";
-import { formatCurrency } from "@/lib/calculations";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ActivitiesSectionProps {
@@ -19,7 +18,7 @@ export function ActivitiesSection({
   onUpdate,
   onRemove,
 }: ActivitiesSectionProps) {
-  const { t } = useLanguage();
+  const { t, formatCurrencyValue } = useLanguage();
   const totalMonthlyCost = items.reduce(
     (sum, a) => sum + a.unitValue * a.monthlyCount,
     0
@@ -73,7 +72,7 @@ export function ActivitiesSection({
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">{t("activities.monthlyCost")}</label>
               <div className="h-10 flex items-center px-3 rounded-lg bg-background text-sm font-mono text-muted-foreground">
-                {formatCurrency(item.unitValue * item.monthlyCount)}
+                {formatCurrencyValue(item.unitValue * item.monthlyCount)}
               </div>
             </div>
             <div className="flex items-end justify-end">
@@ -98,7 +97,7 @@ export function ActivitiesSection({
         <div className="text-sm">
           <span className="text-muted-foreground">{t("activities.totalMonthlyCost")}:</span>{" "}
           <span className="font-mono font-semibold text-foreground">
-            {formatCurrency(totalMonthlyCost)}
+            {formatCurrencyValue(totalMonthlyCost)}
           </span>
         </div>
       </div>
